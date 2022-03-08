@@ -1,0 +1,4 @@
+FROM go
+
+EXPOSE 5000
+
