@@ -9,6 +9,7 @@ import (
 	pb "go-usermgmt-grpc/usermgmt"
 
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials"
 )
 
 const (
@@ -17,11 +18,15 @@ const (
 
 func main() {
 
+	grpc_credentials, err := credentials.NewClientTLSFromFile("grpc_ssl_credentials/grpc.crt", "")
+	if err != nil {
+		log.Fatalf("could not process the credentials: %v", err)
+	}
 	//var grpc_opts []grpc.DialOption
 	//grpc_opts = append(grpc_opts, grpc.WithInsecure())
 	//grpc_opts = append(grpc_opts, grpc.WithBlock())
 
-	grpc_connection, err := grpc.Dial(server_address, grpc.WithInsecure(), grpc.WithBlock())
+	grpc_connection, err := grpc.Dial(server_address, grpc.WithTransportCredentials(grpc_credentials))
 	if err != nil {
 		log.Fatalf("Failed to Dial %v", err)
 	}

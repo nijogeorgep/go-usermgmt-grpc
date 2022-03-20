@@ -9,6 +9,7 @@ import (
 	pb "go-usermgmt-grpc/usermgmt"
 
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials"
 )
 
 const (
@@ -26,12 +27,17 @@ func (s *UserManagementServer) CreateNewUser(ctx context.Context, in *pb.NewUser
 }
 
 func main() {
+	credentials, err := credentials.NewServerTLSFromFile("grpc_ssl_credentials/grpc.crt", "grpc_ssl_credentials/grpc.key")
+	if err != nil {
+		log.Fatalf("Failed to Authenticate : %v", err)
+	}
+
 	listener, err := net.Listen("tcp", port)
 	if err != nil {
 		log.Fatalf("Failed to Listen: %v", port)
 	}
 
-	grpc_server := grpc.NewServer()
+	grpc_server := grpc.NewServer(grpc.Creds(credentials))
 
 	pb.RegisterUserManagementServer(grpc_server, &UserManagementServer{})
 	log.Printf("Server Listening at %v", listener.Addr())
