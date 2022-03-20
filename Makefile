@@ -1,6 +1,9 @@
 IMAGE_NAME := go-usermgmt-grpc
 IMAGE_TAG := latest
 
+certificate:
+	cd certificates; ./generate-certificates.sh; cd ..
+
 proto:
 	protoc -I . \
 	--go_out=. --go_opt=paths=source_relative \
@@ -11,9 +14,15 @@ server:
 	go build -o bin/grpc_server grpc-server/grpc_server.go
 	@chmod +x bin/grpc_server
 
+start_server:
+	./bin/grpc_server
+
 client:
 	go build -o bin/grpc_client grpc-client/grpc_client.go
 	@chmod +x bin/grpc_client
+
+start_client:
+	./bin/grpc_client
 
 image:
 	@docker build -t $(IMAGE_NAME):$(IMAGE_TAG) .
@@ -23,3 +32,5 @@ run-bash:
 
 run:
 	@docker run -p 4000:4000 -it $(IMAGE_NAME):$(IMAGE_TAG)
+
+up: certificate server client start_server

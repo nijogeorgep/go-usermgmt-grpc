@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"crypto/tls"
 	"log"
 	"math/rand"
 	"net"
@@ -27,9 +28,9 @@ func (s *UserManagementServer) CreateNewUser(ctx context.Context, in *pb.NewUser
 }
 
 func main() {
-	credentials, err := credentials.NewServerTLSFromFile("grpc_ssl_credentials/grpc.crt", "grpc_ssl_credentials/grpc.key")
+	credentials, err := loadTLSCredentials()
 	if err != nil {
-		log.Fatalf("Failed to Authenticate : %v", err)
+		log.Fatalf("Couldn't load TLS Credentials : %v", err)
 	}
 
 	listener, err := net.Listen("tcp", port)
@@ -45,4 +46,20 @@ func main() {
 	if err := grpc_server.Serve(listener); err != nil {
 		log.Fatalf("Failed to Serve %v", err)
 	}
+}
+
+func loadTLSCredentials() (credentials.TransportCredentials, error) {
+	// Load server's certificate and private key
+	serverCert, err := tls.LoadX509KeyPair("certificates/server-cert.pem", "certificates/server-key.pem")
+	if err != nil {
+		return nil, err
+	}
+
+	// Create the credentials and return it
+	config := &tls.Config{
+		Certificates: []tls.Certificate{serverCert},
+		ClientAuth:   tls.NoClientCert,
+	}
+
+	return credentials.NewTLS(config), nil
 }

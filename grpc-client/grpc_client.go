@@ -2,7 +2,10 @@ package main
 
 import (
 	"context"
+	"crypto/tls"
+	"crypto/x509"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"time"
 
@@ -13,14 +16,14 @@ import (
 )
 
 const (
-	server_address = "localhost:50051"
+	server_address = "0.0.0.0:50051"
 )
 
 func main() {
 
-	grpc_credentials, err := credentials.NewClientTLSFromFile("grpc_ssl_credentials/grpc.crt", "")
+	grpc_credentials, err := loadTLSCredentials()
 	if err != nil {
-		log.Fatalf("could not process the credentials: %v", err)
+		log.Fatalf("Couldn't load TLS credentials: %v", err)
 	}
 	//var grpc_opts []grpc.DialOption
 	//grpc_opts = append(grpc_opts, grpc.WithInsecure())
@@ -55,4 +58,24 @@ func main() {
 		Id : %d
 		`, response.GetName(), response.GetAge(), response.GetId())
 	}
+}
+
+func loadTLSCredentials() (credentials.TransportCredentials, error) {
+	// Load certificate of the CA who signed server's certificate
+	pemServerCA, err := ioutil.ReadFile("certificates/ca-cert.pem")
+	if err != nil {
+		return nil, err
+	}
+
+	certPool := x509.NewCertPool()
+	if !certPool.AppendCertsFromPEM(pemServerCA) {
+		return nil, fmt.Errorf("failed to add server CA's certificate")
+	}
+
+	// Create the credentials and return it
+	config := &tls.Config{
+		RootCAs: certPool,
+	}
+
+	return credentials.NewTLS(config), nil
 }

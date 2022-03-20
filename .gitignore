@@ -1,2 +1,4 @@
 go.sum
 bin/
+certificates/*.pem
+certificates/*.srl
