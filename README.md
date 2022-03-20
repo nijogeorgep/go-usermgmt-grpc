@@ -5,11 +5,11 @@ Steps to Run this Project in a local machine
 - Install Go
 - Install ProtoBuff
 - Install protocol compiler plugins for Go  
-- Generate SSL Certificates using below commands
+- Generate SSL Certificates using `make certificate`
 - Generate Protobuff Go Files using `make proto`
 - Create Server Executable using `make server`
 - Create Client Executable using `make client`
-- Run `grpc_server` first from `BIN` directory created
+- Run `grpc_server` first from `BIN` directory
 - Run `grpc_client` from `BIN` directory
 
 #### Generate a Private Key and a CSR
