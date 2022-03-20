@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package usermgmt;
 
-option go_package = "cloudwalkers.com/go-usermgmt-grpc:go_usermgmt_grpc";
+option go_package = "cloudwalkers.com/go-usermgmt-grpc";
 
 service UserManagement {
     rpc CreateNewUser(NewUser) returns (User) {}
