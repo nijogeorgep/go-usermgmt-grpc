@@ -71,7 +71,7 @@ func loadTLSCredentials() (credentials.TransportCredentials, error) {
 	if !certPool.AppendCertsFromPEM(pemServerCA) {
 		return nil, fmt.Errorf("failed to add server CA's certificate")
 	}
-
+  
 	// Load client's certificate and private key
 	clientCert, err := tls.LoadX509KeyPair("certificates/client-cert.pem", "certificates/client-key.pem")
 	if err != nil {
