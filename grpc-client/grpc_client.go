@@ -16,12 +16,12 @@ import (
 )
 
 const (
-	server_address = "0.0.0.0:50051"
+	serverAddress = "0.0.0.0:50051"
 )
 
 func main() {
 
-	grpc_credentials, err := loadTLSCredentials()
+	grpcCredentials, err := loadTLSCredentials()
 	if err != nil {
 		log.Fatalf("Couldn't load TLS credentials: %v", err)
 	}
@@ -29,26 +29,31 @@ func main() {
 	//grpc_opts = append(grpc_opts, grpc.WithInsecure())
 	//grpc_opts = append(grpc_opts, grpc.WithBlock())
 
-	grpc_connection, err := grpc.Dial(server_address, grpc.WithTransportCredentials(grpc_credentials))
+	grpcConnection, err := grpc.Dial(serverAddress, grpc.WithTransportCredentials(grpcCredentials))
 	if err != nil {
 		log.Fatalf("Failed to Dial %v", err)
 	}
-	if grpc_connection != nil {
-		fmt.Printf("Connection Succeeded to %v ", server_address)
+	if grpcConnection != nil {
+		fmt.Printf("Connection Succeeded to %v ", serverAddress)
 	}
-	defer grpc_connection.Close()
+	defer func(grpcConnection *grpc.ClientConn) {
+		err := grpcConnection.Close()
+		if err != nil {
+			log.Fatalf("Failed to Dial %v", err)
+		}
+	}(grpcConnection)
 
-	grpc_client := pb.NewUserManagementClient(grpc_connection)
+	grpcClient := pb.NewUserManagementClient(grpcConnection)
 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
 
-	var new_users = make(map[string]int32)
-	new_users["NIJO"] = 33
-	new_users["GEORGE"] = 60
+	var newUsers = make(map[string]int32)
+	newUsers["NIJO"] = 33
+	newUsers["GEORGE"] = 60
 
-	for name, age := range new_users {
-		response, err := grpc_client.CreateNewUser(ctx, &pb.NewUser{Name: name, Age: age})
+	for name, age := range newUsers {
+		response, err := grpcClient.CreateNewUser(ctx, &pb.NewUser{Name: name, Age: age})
 		if err != nil {
 			log.Fatalf("Couldn't create User %v", err)
 		}
@@ -71,7 +76,7 @@ func loadTLSCredentials() (credentials.TransportCredentials, error) {
 	if !certPool.AppendCertsFromPEM(pemServerCA) {
 		return nil, fmt.Errorf("failed to add server CA's certificate")
 	}
-  
+
 	// Load client's certificate and private key
 	clientCert, err := tls.LoadX509KeyPair("certificates/client-cert.pem", "certificates/client-key.pem")
 	if err != nil {

@@ -26,12 +26,12 @@ type UserManagementServer struct {
 
 func (s *UserManagementServer) CreateNewUser(ctx context.Context, in *pb.NewUser) (*pb.User, error) {
 	log.Printf("Received : %v and %d", in.GetName(), in.GetAge())
-	var user_id int32 = int32(rand.Intn(1000))
-	return &pb.User{Name: in.GetName(), Age: in.GetAge(), Id: user_id}, nil
+	var userId = int32(rand.Intn(1000))
+	return &pb.User{Name: in.GetName(), Age: in.GetAge(), Id: userId}, nil
 }
 
 func main() {
-	credentials, err := loadTLSCredentials()
+	tlsCredentials, err := loadTLSCredentials()
 	if err != nil {
 		log.Fatalf("Couldn't load TLS Credentials : %v", err)
 	}
@@ -41,12 +41,12 @@ func main() {
 		log.Fatalf("Failed to Listen: %v", port)
 	}
 
-	grpc_server := grpc.NewServer(grpc.Creds(credentials))
+	grpcServer := grpc.NewServer(grpc.Creds(tlsCredentials))
 
-	pb.RegisterUserManagementServer(grpc_server, &UserManagementServer{})
+	pb.RegisterUserManagementServer(grpcServer, &UserManagementServer{})
 	log.Printf("Server Listening at %v", listener.Addr())
 
-	if err := grpc_server.Serve(listener); err != nil {
+	if err := grpcServer.Serve(listener); err != nil {
 		log.Fatalf("Failed to Serve %v", err)
 	}
 }
