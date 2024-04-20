@@ -25,7 +25,7 @@ type UserManagementServer struct {
 }
 
 func (s *UserManagementServer) CreateNewUser(ctx context.Context, in *pb.NewUser) (*pb.User, error) {
-	log.Printf("Received : %v and %d", in.GetName(), in.GetAge())
+	log.Printf("Received From : %v and %d", in.GetName(), in.GetAge())
 	var userId = int32(rand.Intn(1000))
 	return &pb.User{Name: in.GetName(), Age: in.GetAge(), Id: userId}, nil
 }
